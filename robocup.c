@@ -1,4 +1,4 @@
-// modifica
+// modifica 2
 //void gira_180(){}
 void gira_destra(){
 	setMotorTarget(motorB,30,-200);
