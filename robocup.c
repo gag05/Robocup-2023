@@ -1,5 +1,3 @@
-// modifica 2
-//void gira_180(){}
 void gira_destra(){
 	setMotorTarget(motorB,30,-200);
 	waitUntilMotorStop(motorB);
@@ -10,37 +8,42 @@ void gira_sinistra(){
 	waitUntilMotorStop(motorC);
 }
 
-void movimento(int v1,int g){
-	setMotorTarget(motorB,g,v1);
-	setMotorTarget(motorC,g,v1);
-	waitUntilMotorStop(motorC);
-	waitUntilMotorStop(motorB);
-}
-
 //funzione di quando non trova più il colore nero
 void no_nero(){
-	while(getColorReflected(S3)<=11){
-		setMotorSpeed(motorB,40);
-		setMotorSpeed(motorC,-40);
-	}
-	while(getColorReflected(S1) <= 12){
-		setMotorSpeed(motorB,-40);
-		setMotorSpeed(motorC,40);
+	setMotorSpeed(motorD,5);
+			
+	if(getColorReflected(S4) < 16)
+		while(getColorReflected(S4) <16){
+			setMotorSpeed(motorB,20);
+			setMotorSpeed(motorC,-25);
+		}
+	else
+		while(getColorReflected(S2) < 16){
+			setMotorSpeed(motorB,-25);
+			setMotorSpeed(motorC,20);
+		}
+}
+
+void linea_spezzata(){
+	while(getColorReflected(S2) > 14 && getColorReflected(S3) > 14 && getColorReflected(S4) > 14){
+		setMotorSpeed(motorB,20);
+		setMotorSpeed(motorC,20);
+		setMotorSpeed(motorD,10);
 	}
 }
 
 void incrocio(){
 
 	TLegoColors cl,cr;
-	
+
 	setMotorSpeed(motorB,0);
 	setMotorSpeed(motorC,0);
 	setMotorSpeed(motorD,0);
-	
+
 	while(getColorName(S1) != colorGreen && getColorName(S3) != colorGreen){
-			setMotorSpeed(motorB,-10);
-			setMotorSpeed(motorC,-10);
-			setMotorSpeed(motorD,10);
+		setMotorSpeed(motorB,-10);
+		setMotorSpeed(motorC,-10);
+		setMotorSpeed(motorD,10);
 	}
 	setMotorSpeed(motorB,0);
 	setMotorSpeed(motorC,0);
@@ -53,7 +56,7 @@ void incrocio(){
 	else if(cr == colorGreen){
 		gira_destra();
 		return;
-	}else if(cl == colorGreen){
+		}else if(cl == colorGreen){
 		gira_sinistra();
 		return;
 	}
@@ -61,35 +64,6 @@ void incrocio(){
 	setMotorSpeed(motorC,30);
 	setMotorSpeed(motorD,-30);
 
-
-}
-
-void discesa(){
-	int crr,crl;
-	do{
-				crr = getColorReflected(S3);
-				crl = getColorReflected(S1);
-
-
-				setMotorSpeed(motorB,20);
-				setMotorSpeed(motorC,20);
-				setMotorSpeed(motorD,-20);
-		}while(crr>12 && crl >12);
-		no_nero();
-
-}
-
-
-void salita(){
-	while(getGyroDegrees(S2) < 3){
-		setMotorSpeed(motorB,40);
-		setMotorSpeed(motorC,40);
-		setMotorSpeed(motorD,-40);
-	}
-	/*setMotorTarget(motorB,270,80);
-	setMotorTarget(motorC,270,80);
-	waitUntilMotorStop(motorB);
-	waitUntilMotorStop(motorC);*/
 
 }
 
@@ -116,47 +90,60 @@ void ostacolo(){
 	moveMotorTarget(motorC,400,60);
 	waitUntilMotorStop(motorC);
 	//torna sulla linea nera
-	moveMotorTarget(motorB,270,60);
-	moveMotorTarget(motorC,270,60);
-	moveMotorTarget(motorD,270,-60);
-	waitUntilMotorStop(motorB);
-	waitUntilMotorStop(motorC);
+	while(getColorReflected(S2) > 14){
+		setMotorSpeed(motorB,20);
+		setMotorSpeed(motorC,20);
+		setMotorSpeed(motorD,10);
+	}
+	
+	setMotorSpeed(motorB,20);
+	setMotorSpeed(motorC,20);
+	setMotorSpeed(motorD,10);
 	//si rimette dritto
 	moveMotorTarget(motorB,400,60);
 	waitUntilMotorStop(motorB);
+	//bianco 83-70
+	//nero 9
+	//nero-bianco 16
 }
 
 task main(){
-	int crr,crl;
-
-	resetGyro(S2);
+	int crr,crl,crc;
+  // sensore destro 4
+	// sensore centrale 3
+	// sensore sisnistro 2
 	while(true){
-			//sensore in nero
+		//sensore in nero
 
 		do{
-				crr = getColorReflected(S3);
-				crl = getColorReflected(S1);
+			crr = getColorReflected(S4);
+			crc = getColorReflected(S3);
+			crl = getColorReflected(S2);
+
+			//if(crr - crl < -10 || crl - crr > 10)
 
 
-				setMotorSpeed(motorB,20);
-				setMotorSpeed(motorC,20);
-				setMotorSpeed(motorD,-10);
-				//controllare porta del sensore di distanza
-				if(getUSDistance(S4) < 5){
-					setMotorSpeed(motorB,0);
-					setMotorSpeed(motorC,0);
-					ostacolo();
-				}
+			setMotorSpeed(motorB,20);
+			setMotorSpeed(motorC,20);
+			setMotorSpeed(motorD,10);
+			//controllare porta del sensore di distanza
+			int distanza = getUSDistance(S1);
+			if(getUSDistance(S1) < 6){
+				setMotorSpeed(motorB,0);
+				setMotorSpeed(motorC,0);
+				setMotorSpeed(motorD,0);
+				ostacolo();
+			}
+				
+			crr = getColorReflected(S4);
+			crc = getColorReflected(S3);
+			crl = getColorReflected(S2);
 
+		}while(crc <= 14 && crr > 16 && crl > 16);
 
-				if(getGyroDegrees(S2) < -10)
-					salita();
-				else if(getGyroDegrees(S2) > 15)
-					discesa();
-
-		}while(crr>10 && crl >10);
-			if(crr<=20 && crl <=20)
-				incrocio();
+		if(crc > 16 && crr > 16 && crl > 16)
+			linea_spezzata();
+		else
 			no_nero();
 
 	}
